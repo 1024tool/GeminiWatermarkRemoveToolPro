@@ -1,0 +1,23 @@
+{
+    "title": "Gemini Watermark Remover Pro",
+    "tab_single": "🎨 Standard Mode",
+    "tab_batch": "📚 Batch Process",
+    "drop_title": "Click or drag images here",
+    "drop_desc": "Batch Support · Auto Detect · Smart AI",
+    "btn_upload": "📂 Select Images",
+    "btn_reset": "↺ Reset Position",
+    "btn_remove": "✨ Remove Watermark",
+    "btn_download": "⬇️ Save Result",
+    "btn_dl_all": "⬇️ Save All",
+    "status_no_file": "No file selected",
+    "lbl_threshold": "🛡️Threshold",
+    "btn_toggle": "👁️ Toggle View",
+    "btn_press": "👆 Hold to Compare",
+    "msg_press_compare": "👉 Hold image to compare with original",
+    "status_waiting": "Ready",
+    "status_detecting": "Detecting...",
+    "status_success": "Success",
+    "status_skipped": "Not detected (Manual available)",
+    "msg_drag_fix": "Manual",
+    "footer": "Gemini Watermark Remover Pro"
+}
