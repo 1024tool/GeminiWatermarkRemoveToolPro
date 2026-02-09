@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Watermark Remover Pro</title>
+    <link rel="icon" href="/favicon.ico">
+    <style>
+        /* --- theme --- */
+        :root {
+            --bg: #121212; --card: #1e1e1e; --accent: #bb86fc; --text: #fff; 
+            --border: rgba(255,255,255,0.1); --bg-grad: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --success: #00e676; 
+            --warn: #ffb74d; 
+            --danger: #fa8c16; 
+        }
+        [data-theme="light"] {
+            --bg: #f4f6f8; --card: #fff; --accent: #2196f3; --text: #333;
+            --border: rgba(0,0,0,0.1); --bg-grad: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        }
+        [data-theme="green"] {
+            --bg: #1a2f1a; --card: #2d4a2d; --accent: #66bb6a; --text: #e8f5e9;
+            --border: rgba(255,255,255,0.1); --bg-grad: linear-gradient(135deg, #134e5e, #71b280);
+        }
+        [data-theme="blue"] {
+            --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc;
+            --border: rgba(255,255,255,0.1); --bg-grad: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        }
+        [data-theme="cyber"] {
+            --bg: #0b0b1a; --card: #1a0b1a; --accent: #00ffea; --text: #fff;
+            --border: rgba(255,0,128,0.3); --bg-grad: linear-gradient(45deg, #0b0b1a, #2a0b2a);
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; background: var(--bg-grad); color: var(--text); 
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; 
+            transition: all 0.3s ease;
+        }
+        
+        .header { 
+            width: 95%; max-width: 1200px; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:15px;
+        }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); display:flex; align-items:center; gap:10px; text-shadow: 0 0 10px rgba(0,0,0,0.3);}
+        .top-tools { display: flex; gap: 15px; align-items: center; }
+
+        .theme-select {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: var(--text);
+            padding: 5px 10px; border-radius: 8px; outline: none; cursor: pointer;
+            transition: 0.2s;
+        }
+        .theme-select:hover { background: rgba(0,0,0,0.5); border-color: var(--accent); }
+        .theme-select option { background: #333; color: #fff; }
+
+        .controls { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
+        input[type=range] { accent-color: var(--accent); cursor: pointer; height:4px; }
+
+        .tab-nav { display: flex; gap: 10px; margin: 10px 0 20px 0; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px; }
+        
+        /* --- bottom--- */
+        .tab-btn { 
+            background: none; border: none; color: var(--text); opacity:0.6; padding: 10px 20px; cursor: pointer; border-radius: 8px; font-weight: bold; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative; overflow: hidden;
+        }
+        .tab-btn:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+        .tab-btn.active { background: var(--accent); color: #000; opacity:1; box-shadow: 0 0 15px var(--accent); transform: scale(1.02); }
+
+        .container { width: 95%; max-width: 1200px; display: none; flex-direction: column; gap: 20px; padding-bottom: 50px; flex: 1; }
+        .container.active { display: flex; }
+        
+        .card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+        .workspace { min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+        .img-wrapper { position: relative; display: inline-block; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; transition: 0.3s; }
+        #singleImg { display: block; max-width: 100%; max-height: 60vh; cursor: grab; user-select: none; }
+        .detect-box {
+            position: absolute; border: 2px solid #ff3333; z-index: 10;
+            box-shadow: 0 0 10px rgba(255,0,0,0.8); cursor: move; display: none;
+        }
+        .detect-box::after { content: attr(data-tip); position: absolute; top: -20px; left: 0; background: #ff3333; color: white; font-size: 10px; padding: 1px 4px; border-radius: 2px; white-space: nowrap; pointer-events: none;}
+
+        .drop-zone { border: 2px dashed var(--accent); padding: 40px; text-align: center; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; background: rgba(255,255,255,0.02); }
+        .drop-zone:hover { background: rgba(255,255,255,0.08); transform: scale(1.01); box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        .batch-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 15px; border-left: 4px solid transparent; transition:0.2s; }
+        .batch-item:hover { background: rgba(255,255,255,0.08); transform: translateX(2px); }
+        .batch-item.success { border-color: var(--success); }
+        .batch-item.skipped { border-color: var(--danger); }
+        .thumb { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; cursor: zoom-in; background: #000; transition: transform 0.2s; }
+        .thumb:hover { transform: scale(1.1); }
+
+        
+        .btn { 
+            padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px; color:var(--text); 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            user-select: none;
+        }
+        
+        
+        .btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        
+        .btn:not(:disabled):active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-primary:not(:disabled):hover {
+            filter: brightness(1.1);
+            box-shadow: 0 0 20px var(--accent); 
+        }
+
+        
+        .btn-outline { background: transparent; border: 1px solid var(--border); }
+        .btn-outline:not(:disabled):hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--text);
+        }
+
+        .btn-danger { 
+            background: var(--danger); 
+            color: #fff; 
+            
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .btn-danger:not(:disabled):hover {
+
+            background: var(--danger); 
+            
+            
+            filter: brightness(1.15) saturate(1.1); 
+            
+            
+            box-shadow: 0 0 20px var(--danger); 
+        }
+		
+		.footer-link {
+		color: #007bff;          
+		text-decoration: none;    
+		font-weight: 500;         
+		transition: all 0.3s ease; 
+		}
+
+		.footer-link:hover {
+			color: #0056b3;          
+			text-decoration: underline; 
+			cursor: pointer;
+		}
+
+        
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.5); transform: none !important; box-shadow: none !important; }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-wrapper { position: relative; max-width: 90%; max-height: 85vh; animation: zoomIn 0.2s ease; }
+        @keyframes zoomIn { from {transform:scale(0.9); opacity:0;} to {transform:scale(1); opacity:1;} }
+        
+        .modal-img { max-width: 100%; max-height: 85vh; border-radius: 8px; cursor: grab; display: block; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .modal-box { position: absolute; border: 2px solid red; pointer-events: none; display: none; box-shadow: 0 0 10px rgba(255,0,0,0.5); }
+        
+        .footer { text-align: center; padding: 20px; color: var(--text); opacity: 0.5; font-size: 0.8rem; margin-top: auto; border-top: 1px solid var(--border); width: 100%; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">
+        ✨ <span data-i18n="title">Gemini Remover Pro</span>
+    </div>
+    <div class="top-tools">
+        <select class="theme-select" id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="auto">🌐 Auto</option>
+            <option value="zh-cn">🇨🇳 中文</option>
+            <option value="en">🇺🇸 English</option>
+            <option value="ja">🇯🇵 日本語</option>
+			<option value="ko">ko 한국어</option>
+        </select>
+        
+        <div class="controls">
+            <span style="font-size:0.8rem; opacity:0.8" data-i18n="lbl_threshold">🛡️ 阈值</span>
+            <input type="range" id="thresholdSlider" min="0" max="100" value="25" oninput="updateThVal(this.value)">
+            <span id="thVal" style="color:var(--accent); font-weight:bold; font-size:0.9rem; min-width:35px;">25%</span>
+        </div>
+
+        <select class="theme-select" onchange="setTheme(this.value)">
+            <option value="dark">🌑 Dark</option>
+            <option value="light">☀️ Light</option>
+            <option value="green">🌲 Green</option>
+            <option value="blue">🌊 Blue</option>
+            <option value="cyber">🤖 Cyber</option>
+        </select>
+    </div>
+</div>
+
+<div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('single')" data-i18n="tab_single">🎨 常规模式</button>
+    <button class="tab-btn" onclick="switchTab('batch')" data-i18n="tab_batch">📚 批量队列</button>
+</div>
+
+<div id="singleContainer" class="container active">
+    <div class="card workspace">
+        <div class="toolbar">
+            <button class="btn btn-outline" onclick="document.getElementById('singleUp').click()" data-i18n="btn_upload">📂 上传图片</button>
+            <input type="file" id="singleUp" accept="image/*" style="display:none">
+            <span id="singleName" style="opacity:0.6;" data-i18n="status_no_file">未选择</span>
+        </div>
+
+        <div class="img-wrapper" id="singleWrapper" style="display:none;">
+            <img id="singleImg" src="" 
+                 onmousedown="singlePressStart()" onmouseup="singlePressEnd()" onmouseleave="singlePressEnd()"
+                 ontouchstart="singlePressStart()" ontouchend="singlePressEnd()">
+            <div class="detect-box" id="dragBox" data-tip="拖动"></div>
+        </div>
+        
+        <div class="toolbar" id="singleTools" style="display:none; flex-wrap: wrap; justify-content: center;">
+            <div id="singleStatus" style="width: 100%; text-align: center; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold;"></div>
+            
+            <button class="btn btn-outline" id="btnToggle" onclick="toggleCompare()" disabled data-i18n="btn_toggle">👁️ 切换对比</button>
+            <button class="btn btn-outline" id="btnPress" onmousedown="singlePressStart()" onmouseup="singlePressEnd()" disabled data-i18n="btn_press">👆 按住对比</button>
+            
+            <div style="width:1px; background:var(--border); margin:0 10px;"></div>
+            
+            <button class="btn btn-outline" onclick="resetSingle()" data-i18n="btn_reset">↺ 重置</button>
+            <button class="btn btn-primary" onclick="runSingleRemove()" data-i18n="btn_remove">✨ 去除水印</button>
+            <button class="btn btn-danger" id="btnDL" onclick="dlSingle()" disabled data-i18n="btn_download">⬇️ 下载</button>
+        </div>
+    </div>
+</div>
+
+<div id="batchContainer" class="container">
+    <div class="card">
+        <div class="drop-zone" onclick="document.getElementById('batchUp').click()">
+            <h3 data-i18n="drop_title">点击或拖入多张图片</h3>
+            <input type="file" id="batchUp" multiple accept="image/*" style="display:none">
+        </div>
+    </div>
+    <div class="image-list" id="batchList"></div>
+    <div style="text-align:center; margin-top: 20px;">
+        <button class="btn btn-primary" onclick="dlAllBatch()" data-i18n="btn_dl_all">⬇️ 批量下载全部</button>
+    </div>
+</div>
+
+<div class="footer">
+    <span data-i18n="footer">© 2026 Gemini 去水印工具 </span>
+    <a href="https://github.com/1024tool/GeminiWatermarkRemoveToolPro" target="_blank" class="footer-link">1024Tool</a>
+</div>
+
+<div id="modal" class="modal">
+    <div style="position:absolute; top:20px; right:30px; font-size:40px; cursor:pointer; color:#fff; text-shadow:0 0 10px #000;" onclick="closeModal()">×</div>
+    <div class="modal-wrapper">
+        <img id="modalImg" class="modal-img" src="" 
+             onmousedown="modalPressStart()" onmouseup="modalPressEnd()" onmouseleave="modalPressEnd()"
+             ontouchstart="modalPressStart()" ontouchend="modalPressEnd()">
+        <div id="modalBox" class="modal-box"></div>
+    </div>
+    <div style="margin-top:20px; opacity:0.7; font-weight:bold;" data-i18n="msg_press_compare">👉 按住图片对比原图</div>
+</div>
+
+<script>
+    let i18nData = {};
+    const defaultLang = 'zh-cn';
+    const langMap = { 'zh': 'zh-cn', 'zh-cn': 'zh-cn', 'en': 'en', 'ja': 'ja', 'ja-jp': 'ja' ,'ko':'ko'};
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const saved = localStorage.getItem('app_lang') || 'auto';
+        document.getElementById('langSelect').value = saved;
+        initLanguage(saved);
+    });
+
+    function changeLanguage(code) {
+        localStorage.setItem('app_lang', code);
+        initLanguage(code);
+    }
+
+    async function initLanguage(pref) {
+        let lang = defaultLang;
+        if (pref === 'auto') {
+            const browser = navigator.language.toLowerCase();
+            if (langMap[browser]) lang = langMap[browser];
+            else if (langMap[browser.split('-')[0]]) lang = langMap[browser.split('-')[0]];
+        } else {
+            lang = pref;
+        }
+
+        try {
+            const res = await fetch(`/lang/${lang}.json`);
+            if (res.ok) i18nData = await res.json();
+            else throw new Error("Lang missing");
+        } catch {
+            if (lang !== 'en') {
+                const r2 = await fetch(`/lang/en.json`);
+                if (r2.ok) i18nData = await r2.json();
+            }
+        }
+        applyTranslations();
+    }
+
+    function t(key) {
+        return i18nData[key] || key;
+    }
+
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (i18nData[key]) el.innerText = i18nData[key];
+        });
+        const tip = t('msg_drag_fix');
+        document.getElementById('dragBox').setAttribute('data-tip', tip);
+    }
+
+    function setTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+    function updateThVal(v) { document.getElementById('thVal').innerText = v + '%'; }
+    
+    
+    function updateStatus(text, colorVar) { 
+        const el = document.getElementById('singleStatus');
+        el.innerText = text;
+
+        el.style.color = colorVar ? colorVar : 'var(--text)';
+
+        if(colorVar) el.style.textShadow = "0 0 10px " + colorVar;
+        else el.style.textShadow = "none";
+    }
+
+    let singleState = {
+        file: null, origUrl: '', cleanUrl: '', 
+        box: {x:0, y:0, w:0, h:0, defX:0, defY:0},
+        isCleaned: false, filename: ''
+    };
+    let batchData = [];
+    let currentModalId = null;
+
+    function switchTab(t) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+        if(t==='single') {
+            document.querySelector('[onclick="switchTab(\'single\')"]').classList.add('active');
+            document.getElementById('singleContainer').classList.add('active');
+        } else {
+            document.querySelector('[onclick="switchTab(\'batch\')"]').classList.add('active');
+            document.getElementById('batchContainer').classList.add('active');
+        }
+    }
+
+    // ================== Single Mode ==================
+    document.getElementById('singleUp').onchange = e => { if(e.target.files[0]) loadSingle(e.target.files[0]); };
+
+    async function loadSingle(file) {
+        singleState.file = file;
+        singleState.origUrl = URL.createObjectURL(file);
+        singleState.isCleaned = false;
+        
+        document.getElementById('singleName').innerText = file.name;
+        document.getElementById('singleWrapper').style.display = 'block';
+        document.getElementById('singleTools').style.display = 'flex';
+        document.getElementById('singleImg').src = singleState.origUrl;
+        document.getElementById('dragBox').style.display = 'none';
+        
+        document.getElementById('btnToggle').disabled = true;
+        document.getElementById('btnPress').disabled = true;
+        document.getElementById('btnDL').disabled = true;
+        updateStatus(t('status_detecting'), 'var(--warn)');
+
+        const th = document.getElementById('thresholdSlider').value;
+        const fd = new FormData();
+        fd.append('image', file);
+        fd.append('action', 'detect');
+        fd.append('threshold', th);
+        
+        const res = await fetch('/upload', {method:'POST', body:fd}).then(r=>r.json());
+        
+        singleState.box = { x:res.box_x, y:res.box_y, w:res.box_w, h:res.box_h, defX:res.box_x, defY:res.box_y };
+        
+        let statusText = '';
+        let statusColor = '';
+
+        if (res.status === 'skipped') {
+            statusText = t('status_skipped'); 
+            statusColor = 'var(--danger)'; // 
+        } else {
+            statusText = t('status_detected'); 
+            statusColor = 'var(--success)'; // 
+        }
+        
+        updateStatus(`${statusText} (Conf: ${res.confidence.toFixed(0)}% / Th: ${th}%)`, statusColor);
+        
+        drawBox();
+    }
+
+    function drawBox() {
+        if(singleState.isCleaned) {
+            document.getElementById('dragBox').style.display = 'none';
+            return;
+        }
+        const img = document.getElementById('singleImg');
+        const box = document.getElementById('dragBox');
+        if(!img.complete || img.naturalWidth === 0) { setTimeout(drawBox, 100); return; }
+        
+        const scale = img.clientWidth / img.naturalWidth;
+        const b = singleState.box;
+        if(b.w === 0) { b.w=96; b.h=96; b.x=img.naturalWidth-160; b.y=img.naturalHeight-160; }
+        
+        box.style.display = 'block';
+        box.style.left = (b.x * scale) + 'px';
+        box.style.top = (b.y * scale) + 'px';
+        box.style.width = (b.w * scale) + 'px';
+        box.style.height = (b.h * scale) + 'px';
+    }
+    window.onresize = drawBox;
+
+    const boxEl = document.getElementById('dragBox');
+    let isDrag = false, startP = {}, startBox = {};
+    boxEl.onmousedown = e => startDrag(e.clientX, e.clientY);
+    boxEl.ontouchstart = e => startDrag(e.touches[0].clientX, e.touches[0].clientY);
+    
+    function startDrag(cx, cy) {
+        if(singleState.isCleaned) return;
+        isDrag = true; startP = {x:cx, y:cy};
+        startBox = {x: parseFloat(boxEl.style.left), y: parseFloat(boxEl.style.top)};
+        document.onmousemove = e => onDrag(e.clientX, e.clientY);
+        document.onmouseup = stopDrag;
+        document.ontouchmove = e => onDrag(e.touches[0].clientX, e.touches[0].clientY);
+        document.ontouchend = stopDrag;
+    }
+    function onDrag(cx, cy) {
+        if(!isDrag) return;
+        boxEl.style.left = (startBox.x + cx - startP.x) + 'px';
+        boxEl.style.top = (startBox.y + cy - startP.y) + 'px';
+    }
+    function stopDrag() {
+        isDrag = false;
+        document.onmousemove = null; document.onmouseup = null;
+        document.ontouchmove = null; document.ontouchend = null;
+        const img = document.getElementById('singleImg');
+        const scale = img.clientWidth / img.naturalWidth;
+        singleState.box.x = Math.round(parseFloat(boxEl.style.left) / scale);
+        singleState.box.y = Math.round(parseFloat(boxEl.style.top) / scale);
+    }
+
+    async function runSingleRemove() {
+        updateStatus(t('status_processing'), 'var(--warn)');
+        const fd = new FormData();
+        fd.append('image', singleState.file);
+        fd.append('action', 'remove');
+        fd.append('manual_x', singleState.box.x);
+        fd.append('manual_y', singleState.box.y);
+        
+        const res = await fetch('/upload', {method:'POST', body:fd}).then(r=>r.json());
+        const bin = atob(res.data);
+        const bytes = new Uint8Array(bin.length);
+        for (let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        
+        singleState.cleanUrl = URL.createObjectURL(new Blob([bytes], {type:'image/png'}));
+        singleState.filename = res.filename;
+        singleState.isCleaned = true;
+
+        document.getElementById('singleImg').src = singleState.cleanUrl;
+        document.getElementById('dragBox').style.display = 'none';
+        document.getElementById('btnToggle').disabled = false;
+        document.getElementById('btnPress').disabled = false;
+        document.getElementById('btnDL').disabled = false;
+        
+        updateStatus(t('status_removed'), 'var(--success)'); 
+    }
+
+    function resetSingle() {
+        singleState.box.x = singleState.box.defX;
+        singleState.box.y = singleState.box.defY;
+        singleState.isCleaned = false;
+        document.getElementById('singleImg').src = singleState.origUrl;
+        drawBox();
+        document.getElementById('btnToggle').disabled = true;
+        document.getElementById('btnPress').disabled = true;
+        document.getElementById('btnDL').disabled = true;
+        updateStatus(t('status_reset'), '');
+    }
+    
+    let isShowingOrig = false;
+    function toggleCompare() {
+        if(!singleState.isCleaned) return;
+        isShowingOrig = !isShowingOrig;
+        applyCompare(isShowingOrig);
+    }
+    function singlePressStart() { if(singleState.isCleaned) applyCompare(true); }
+    function singlePressEnd() { 
+        if(singleState.isCleaned) {
+            applyCompare(false); isShowingOrig = false; 
+        }
+    }
+    function applyCompare(showOrig) {
+        const img = document.getElementById('singleImg');
+        const box = document.getElementById('dragBox');
+        if(showOrig) {
+            img.src = singleState.origUrl;
+            const scale = img.clientWidth / img.naturalWidth;
+            box.style.left = (singleState.box.x * scale) + 'px';
+            box.style.top = (singleState.box.y * scale) + 'px';
+            box.style.width = (singleState.box.w * scale) + 'px';
+            box.style.height = (singleState.box.h * scale) + 'px';
+            box.style.display = 'block';
+        } else {
+            img.src = singleState.cleanUrl;
+            box.style.display = 'none';
+        }
+    }
+    function dlSingle() { if(singleState.cleanUrl) download(singleState.cleanUrl, singleState.filename); }
+
+    // ================== Batch Mode ==================
+    document.getElementById('batchUp').onchange = async e => {
+        for(let f of e.target.files) await processBatch(f);
+    };
+
+    async function processBatch(file) {
+        const id = Date.now() + Math.random();
+        const li = document.getElementById('batchList');
+        const div = document.createElement('div');
+        div.className = 'batch-item';
+        div.innerHTML = `<div style="width:60px;height:60px;background:#333;border-radius:6px;display:flex;align-items:center;justify-content:center;">⏳</div><div>${file.name}<br><small style="opacity:0.6">${t('status_processing')}</small></div>`;
+        li.prepend(div);
+
+        const th = document.getElementById('thresholdSlider').value;
+        const fd = new FormData();
+        fd.append('image', file);
+        fd.append('action', 'remove');
+        fd.append('threshold', th);
+
+        try {
+            const res = await fetch('/upload', {method:'POST', body:fd}).then(r=>r.json());
+            const bin = atob(res.data);
+            const bytes = new Uint8Array(bin.length);
+            for (let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            const url = URL.createObjectURL(new Blob([bytes], {type:'image/png'}));
+            const origUrl = URL.createObjectURL(file);
+
+            batchData.push({ id, origUrl, cleanUrl: url, filename: res.filename, box: {x:res.box_x, y:res.box_y, w:res.box_w, h:res.box_h} });
+
+            const info = `Conf: ${res.confidence.toFixed(0)}% ${res.status==='skipped' ? '< '+th+'%' : '> '+th+'%'}`;
+            
+            let displayMsg = res.status === 'success' ? t('status_success') : t('status_skipped');
+            let colorStyle = res.status === 'success' ? 'var(--success)' : 'var(--danger)';
+
+            div.className = `batch-item ${res.status}`;
+            div.innerHTML = `
+                <img src="${url}" class="thumb" onclick="openModal(${id})">
+                <div style="flex:1">
+                    <div>${res.filename}</div>
+                    <small style="color:${colorStyle}; font-weight:bold;">${displayMsg}</small>
+                    <small style="opacity:0.5; margin-left:10px;">${info}</small>
+                </div>
+                <button class="btn btn-outline" style="padding:5px 10px;" onclick="openModal(${id})">🔍</button>
+                <button class="btn btn-primary" style="padding:5px 10px;" onclick="download('${url}','${res.filename}')">⬇️</button>
+            `;
+        } catch(e) { div.innerHTML = `❌ Error`; }
+    }
+
+    function openModal(id) {
+        const item = batchData.find(i=>i.id===id);
+        if(!item) return;
+        currentModalId = id;
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('modalImg').src = item.cleanUrl;
+        document.getElementById('modalBox').style.display = 'none';
+    }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; currentModalId = null; }
+    
+    function modalPressStart() {
+        if(!currentModalId) return;
+        const item = batchData.find(i=>i.id===currentModalId);
+        const img = document.getElementById('modalImg');
+        const box = document.getElementById('modalBox');
+        img.src = item.origUrl;
+        
+        const scale = img.clientWidth / img.naturalWidth;
+        box.style.left = (item.box.x * scale) + 'px';
+        box.style.top = (item.box.y * scale) + 'px';
+        box.style.width = (item.box.w * scale) + 'px';
+        box.style.height = (item.box.h * scale) + 'px';
+        box.style.display = 'block';
+    }
+    function modalPressEnd() {
+        if(!currentModalId) return;
+        const item = batchData.find(i=>i.id===currentModalId);
+        document.getElementById('modalImg').src = item.cleanUrl;
+        document.getElementById('modalBox').style.display = 'none';
+    }
+
+    function download(url, name) {
+        const a = document.createElement('a'); a.href=url; a.download=name;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    function dlAllBatch() {
+        batchData.forEach((d,i) => setTimeout(()=>download(d.cleanUrl, d.filename), i*300));
+    }
+</script>
+</body>
+</html>
