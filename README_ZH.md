@@ -2,7 +2,11 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.20+-00ADD8?style=flat&logo=go)](https://golang.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+<p align="center">
+  <a href="./README.md">English</a> | [简体中文] | <a href="./README_JA.MD">日本語</a>
+</p>
 
+---
 **Gemini Watermark Remover Pro** 是一款专为去除 Google Gemini (Imagen 2/3) 生成图片中右下角半透明水印而设计的本地化工具。
 
 它结合了 **Go 语言** 的高性能后端与现代化的 **HTML5/JS** 前端，搭载了先进的 **三阶段 NCC 检测算法**，能够智能识别、精准定位并无损还原图片细节。
@@ -148,5 +152,6 @@ A: 支持 `.jpg`, `.jpeg`, `.png` 格式。
 本工具仅供技术研究与个人学习使用。请勿用于侵犯版权或非法用途。生成的图片版权归原作者所有。
 
 ---
+
 
 © 2026 Gemini Watermark Remover Tool Pro.
