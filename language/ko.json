@@ -1,0 +1,23 @@
+{
+    "title": "Gemini 워터마크 제거 프로",
+    "tab_single": "🎨 일반 모드",
+    "tab_batch": "📚 일괄 처리",
+    "drop_title": "클릭하거나 이미지를 드래그하세요",
+    "drop_desc": "일괄 처리 · 자동 감지 · 스마트 알고리즘",
+    "btn_upload": "📂 이미지 선택",
+    "btn_reset": "↺ 위치 초기화",
+    "btn_remove": "✨ 워터마크 제거",
+    "btn_download": "⬇️ 결과 저장",
+    "btn_dl_all": "⬇️ 전체 저장",
+    "status_no_file": "선택되지 않음",
+    "lbl_threshold": "🛡️임계값",
+    "btn_toggle": "👁️ 비교 전환",
+    "btn_press": "👆 누르고 비교",
+    "msg_press_compare": "👉 이미지를 눌러 원본과 비교",
+    "status_waiting": "대기 중",
+    "status_detecting": "감지 중...",
+    "status_success": "처리 성공",
+    "status_skipped": "감지 안 됨 (수동 가능)",
+    "msg_drag_fix": "수동",
+    "footer": "Gemini Watermark Remover Pro"
+}

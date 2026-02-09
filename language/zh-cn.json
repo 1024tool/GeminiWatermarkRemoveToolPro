@@ -1,0 +1,23 @@
+{
+    "title": "Gemini 去水印专业版",
+    "tab_single": "🎨 常规模式",
+    "tab_batch": "📚 批量处理",
+    "drop_title": "点击或拖入多张图片",
+    "drop_desc": "支持批量 · 自动检测 · 智能算法",
+    "btn_upload": "📂 选择图片",
+    "btn_reset": "↺ 重置位置",
+    "btn_remove": "✨ 去除水印",
+    "btn_download": "⬇️ 保存结果",
+    "btn_dl_all": "⬇️ 保存全部",
+    "status_no_file": "未选择",
+    "lbl_threshold": "🛡️阈值",
+    "btn_toggle":"👁️ 切换对比",
+    "btn_press":"👆 按住对比",
+    "msg_press_compare":"👉 按住图片对比原图",
+    "status_waiting": "等待操作",
+    "status_detecting": "检测中...",
+    "status_success": "处理成功",
+    "status_skipped": "未检测到 (可手动)",
+    "msg_drag_fix": "手动",
+    "footer": "Gemini Watermark Remover Pro"
+}
