@@ -73,10 +73,10 @@ go run main.go
 Build standalone binary (recommended):
 ```bash
 # Windows
-go build -o GeminiRemover.exe main.go
+go build -o GeminiWatermarkRemoveToolPro.exe
 
 # macOS / Linux
-go build -o GeminiRemover main.go
+go build -o GeminiWatermarkRemoveToolPro
 ```
 
 After starting, the program will open the default browser at `http://localhost:8080`.
